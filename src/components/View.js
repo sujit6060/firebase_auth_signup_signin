@@ -1,6 +1,8 @@
 import React,{useEffect,useState} from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import axios from "axios";
+import Button from '@mui/material/Button';
+
 
 
 const columns = [
@@ -18,26 +20,29 @@ const columns = [
     
         width: 230,
       },
-    {
-    
-      headerName: 'Delete',
-    
-      sortable: false,
-      width: 260,
-      valueGetter: (params) =><button>Delete</button>
-      ,
-    },
-
-    {
-       
-        headerName: 'Update',
-      
+      {
+        field: "edit",
+        headerName: "Edit",
         sortable: false,
-        width: 160,
-        valueGetter: (params) =><button>Update</button>
-        ,
-      }
-  ];
+        renderCell: (params) => {
+       
+    
+          return <Button variant="contained">Edit</Button>
+        },
+        
+    },
+    {
+        field: "delete",
+        headerName: "Delete",
+        sortable: false,
+        renderCell: (params) => {
+       
+    
+          return<Button variant="outlined">Delete</Button>
+        },
+        
+    }
+    ];
 
 
 function View() {
@@ -47,7 +52,7 @@ function View() {
 useEffect(() => {
     axios.get("http://5.189.130.81:1337/restaurants").then(response=>{
         /// response here
-        console.log(response.data);
+      //  console.log(response.data);
         setState([...response.data]);
     }).catch(err=>{
         console.log(err);
@@ -57,6 +62,10 @@ useEffect(() => {
 
     return (
         <div style={{ height: 400, width: '100%' ,marginTop:"200px" }}>
+
+<Button variant="contained" color="success" style={{marginBottom:"50px" }}>
+  Create Restaurant
+</Button>
         <DataGrid
           rows={state}
           columns={columns}
@@ -64,6 +73,7 @@ useEffect(() => {
           rowsPerPageOptions={[5]}
           checkboxSelection
         />
+
       </div>
     )
 }
