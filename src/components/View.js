@@ -2,9 +2,17 @@ import React,{useEffect,useState} from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import axios from "axios";
 import Button from '@mui/material/Button';
+import AddEditModal from './AddEditModal';
 
 
 
+
+
+function View() {
+
+
+
+    
 const columns = [
     { field: 'id', headerName: 'ID', width: 170 },
     { field: 'name', headerName: 'Restarurant name', width: 230 },
@@ -38,41 +46,84 @@ const columns = [
         renderCell: (params) => {
        
     
-          return<Button variant="outlined">Delete</Button>
+          return<Button variant="outlined" onClick={()=>deleteData(params.id)}>Delete</Button>
         },
         
     }
     ];
 
 
-function View() {
+    const [open, setOpen] = useState(false);
+    const [deleted,setDeleted]=useState(false);
+    const handleOpen = () => setOpen(true);
+    const handleClose = () => setOpen(false);
+
+
     const [state,setState]=useState([]);
 
 
-useEffect(() => {
-    axios.get("http://5.189.130.81:1337/restaurants").then(response=>{
+
+    const createRestaurant=(data)=>{
+        const payload={name:data};
+        axios.post("http://5.189.130.81:1337/restaurants",payload).then(res=>{
+           
+            setOpen(false);
+           
+
+        }).catch(err=>{
+            console.log(err);
+        })
+        /// axios api 
+    }
+
+    const deleteData=(id)=>{
+
+
+        axios.delete(`http://5.189.130.81:1337/restaurants/${id}`).then(res=>{
+           
+          setDeleted(!deleted);
+           
+
+        }).catch(err=>{
+            console.log(err);
+        })
+
+        
+
+    }
+
+
+
+    const getInitialData=()=>{
+        axios.get("http://5.189.130.81:1337/restaurants").then(response=>{
         /// response here
       //  console.log(response.data);
         setState([...response.data]);
     }).catch(err=>{
         console.log(err);
     })
-   
-}, [])
+    }
+
+useEffect(() => {
+    getInitialData();
+}, [open,deleted]);
 
     return (
-        <div style={{ height: 400, width: '100%' ,marginTop:"200px" }}>
+        <div style={{ height: 800, width: '100%' ,marginTop:"200px" }}>
 
-<Button variant="contained" color="success" style={{marginBottom:"50px" }}>
+<Button variant="contained" onClick={handleOpen} color="success" style={{marginBottom:"50px" }}>
   Create Restaurant
 </Button>
         <DataGrid
           rows={state}
           columns={columns}
-          pageSize={5}
-          rowsPerPageOptions={[5]}
+          pageSize={20}
+          rowsPerPageOptions={[5,10,20]}
           checkboxSelection
         />
+
+
+        <AddEditModal  createRestaurant={createRestaurant} handleClose={handleClose}  handleOpen={handleOpen} open={open}  />
 
       </div>
     )
